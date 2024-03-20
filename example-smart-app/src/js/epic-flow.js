@@ -7,55 +7,51 @@
       ret.reject();
     }
 
-    function onReady(smart)  {
-      var patientId = 'eW14uhl2OLK8k0.bB15kP.g3'; // Replace with actual patient ID
-      var obv = smart.api.fetchAll({
-                    type: 'Observation',
-                    query: {
-                      subject: patientId, // Use the patient ID here
-                      code: {
-                        $or: ['http://loinc.org|8302-2', 'http://loinc.org|8462-4',
-                              'http://loinc.org|8480-6', 'http://loinc.org|2085-9',
-                              'http://loinc.org|2089-1', 'http://loinc.org|55284-4']
-                      }
-                    }
-                  });
-
-      $.when(obv).fail(onError);
-
-      $.when(obv).done(function(obv) {
-        var byCodes = smart.byCodes(obv, 'code');
-        var gender = ''; // Epic doesn't return gender information
-        var fname = ''; // Epic doesn't return name information
-        var lname = ''; // Epic doesn't return name information
-
-        var height = byCodes('8302-2');
-        var systolicbp = getBloodPressureValue(byCodes('55284-4'),'8480-6');
-        var diastolicbp = getBloodPressureValue(byCodes('55284-4'),'8462-4');
-        var hdl = byCodes('2085-9');
-        var ldl = byCodes('2089-1');
-
-        var p = defaultPatient();
-        p.birthdate = ''; // Epic doesn't return birthdate information
-        p.gender = gender;
-        p.fname = fname;
-        p.lname = lname;
-        p.height = getQuantityValueAndUnit(height[0]);
-
-        if (typeof systolicbp != 'undefined')  {
-          p.systolicbp = systolicbp;
-        }
-
-        if (typeof diastolicbp != 'undefined') {
-          p.diastolicbp = diastolicbp;
-        }
-
-        p.hdl = getQuantityValueAndUnit(hdl[0]);
-        p.ldl = getQuantityValueAndUnit(ldl[0]);
-
-        ret.resolve(p);
-      });
+    function onReady(smart) {
+  var patientId = 'T9KPWjxvYCNLG6S25sJuOXGFY9s5yWGYX6YbUJq2.iw4B'; // Use the patient ID from the query parameters
+  var obv = smart.api.fetchAll({
+    type: 'Observation',
+    query: {
+      patient: patientId,
+      category: 'laboratory',
     }
+  });
+
+  $.when(obv).fail(onError);
+
+  $.when(obv).done(function (obv) {
+    var byCodes = smart.byCodes(obv, 'code');
+    var gender = ''; // Epic doesn't return gender information
+    var fname = ''; // Epic doesn't return name information
+    var lname = ''; // Epic doesn't return name information
+
+    var height = byCodes('8302-2');
+    var systolicbp = getBloodPressureValue(byCodes('55284-4'), '8480-6');
+    var diastolicbp = getBloodPressureValue(byCodes('55284-4'), '8462-4');
+    var hdl = byCodes('2085-9');
+    var ldl = byCodes('2089-1');
+
+    var p = defaultPatient();
+    p.birthdate = ''; // Epic doesn't return birthdate information
+    p.gender = gender;
+    p.fname = fname;
+    p.lname = lname;
+    p.height = getQuantityValueAndUnit(height[0]);
+
+    if (typeof systolicbp != 'undefined') {
+      p.systolicbp = systolicbp;
+    }
+
+    if (typeof diastolicbp != 'undefined') {
+      p.diastolicbp = diastolicbp;
+    }
+
+    p.hdl = getQuantityValueAndUnit(hdl[0]);
+    p.ldl = getQuantityValueAndUnit(ldl[0]);
+
+    ret.resolve(p);
+  });
+}
 
     FHIR.oauth2.ready(onReady, onError);
     return ret.promise();
