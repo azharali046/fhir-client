@@ -37,10 +37,16 @@
           var fname = '';
           var lname = '';
 
-          if (typeof patient.name[0] !== 'undefined') {
-            fname = patient.name[0].given.join(' ');
-            lname = patient.name[0].family.join(' ');
+         if (smart.patient.hasOwnProperty('name')) {
+        if (smart.patient.name.length > 0) {
+          if (smart.patient.name[0].hasOwnProperty('given') && smart.patient.name[0].given.length > 0) {
+            first_name = smart.patient.name[0].given[0];
           }
+          if (smart.patient.name[0].hasOwnProperty('family')) {
+            last_name = smart.patient.name[0].family;
+          }
+        }
+      }
 
           var height = byCodes('8302-2');
           var systolicbp = getBloodPressureValue(byCodes('55284-4'),'8480-6');
